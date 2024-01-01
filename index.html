@@ -1,0 +1,108 @@
+<html>
+    <head>
+        <title>Censoring</title>
+    </head>
+    <body>
+
+        <div id="subheading">
+            <!-- webpage content goes here -->
+            <p></p>
+        </div>
+
+        <div id="subheading1">
+            <!-- webpage content goes here -->
+            <p></p>
+        </div>
+
+
+        <!-- Firebase App (the core Firebase SDK) is always required and must be listed first -->
+        <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-app.js"></script>
+
+        <!-- Add Firebase products that you want to use -->
+        <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-auth.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-database.js"></script>
+
+        <script>
+
+        // Your web app's Firebase configuration
+        var firebaseConfig = {
+          apiKey: "AIzaSyBHHxjETjLNPQrrE4yDjy8wmn38TwxHgyA",
+          authDomain: "heatic-test-app-64efa.firebaseapp.com",
+          databaseURL: "https://heatic-test-app-64efa-default-rtdb.firebaseio.com",
+          projectId: "heatic-test-app-64efa",
+          storageBucket: "heatic-test-app-64efa.appspot.com",
+          messagingSenderId: "602987526142",
+          appId: "1:602987526142:web:27ce3857299cab09d7b2af"
+        };
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+
+        // Get the content element by its ID
+        var contentElement = document.getElementById('subheading');
+
+        // Get the inner HTML of the content element
+        var content = contentElement.innerHTML;
+
+        // Get the content element by its ID
+        var contentElement1 = document.getElementById('subheading1');
+
+        // Get the inner HTML of the content element
+        var content1 = contentElement.innerHTML;
+
+        var opinion = ''
+        var opinion2 = ''
+        var database1 = firebase.database();
+        database1.ref('global_feed').orderByKey().limitToLast(1).once('value').then(
+            snapshot => {
+                snapshot.forEach(childSnapshot => {
+                    const value = childSnapshot.val().userOpinion;
+                    console.log('Opinion value: ' + value);
+
+                    opinion = value;
+                    opinion2 = value;
+
+                    contentElement.innerText = value;
+                })
+            }
+        )
+
+        const badWords= [];
+        var database = firebase.database();
+        database.ref('testData').orderByKey().once('value').then(
+            snapshot => {
+                snapshot.forEach(childSnapshot => {
+                    const value = childSnapshot.val().test;
+                    console.log('Key value: ' + value);
+                    
+                    badWords.push(value);
+                    console.log('Arrary value: ' + badWords);
+
+                    // Loop through each bad word in the list
+                    badWords.forEach(function (word) {
+                        var regex = new RegExp(word.split('').join('\\s*'), 'g');
+
+                        // Replace abusive words with asterisks using the regular expression
+                        opinion.replace(regex, function (match) {
+                            console.log(opinion.indexOf(match));
+                            
+                            // contentElement.innerText = opinion2[opinion.indexOf(match)]="*".repeat(match.length);
+
+                            return '*'.repeat(match.length);
+                        });
+
+                        contentElement.innerHTML = opinion;
+                    });
+                })
+            }
+        )
+
+
+        // var starCountRef = firebase.database().ref('testData');
+        // starCountRef.on('value', (snapshot) => {
+        //     const data = snapshot.val();
+        //     console.log('Node name: ' + snapshot.key);
+        //     console.log('Child name: ' + data.val);
+        // });
+        </script>
+    </body>
+</html>
